@@ -1,0 +1,15 @@
+# bats test artifacts
+tests/tmp/
+*.bats.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+.vscode/
+.idea/
+
+# Local Claude settings
+.claude/settings.local.json
