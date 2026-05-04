@@ -136,10 +136,34 @@ bootstrap_vault_claude_md() {
 }
 
 # ---------------------------------------------------------------------------
+# Symlink skill and command files into ~/.claude
+# ---------------------------------------------------------------------------
+install_symlinks() {
+  # skill directory
+  local skills_dir="${claude_root}/skills/agentic-second-brain"
+  local skill_src="${SCRIPT_DIR}/skills/agentic-second-brain/SKILL.md"
+  if [[ -f "$skill_src" ]]; then
+    mkdir -p "$skills_dir"
+    ln -sf "$skill_src" "${skills_dir}/SKILL.md"
+  fi
+
+  # command files
+  local commands_dir="${claude_root}/commands"
+  mkdir -p "$commands_dir"
+  for cmd_src in "${SCRIPT_DIR}/commands/"*.md; do
+    [[ -f "$cmd_src" ]] || continue
+    local cmd_name
+    cmd_name="$(basename "$cmd_src")"
+    ln -sf "$cmd_src" "${commands_dir}/${cmd_name}"
+  done
+}
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 VAULT="$(resolve_vault)"
 write_config "$VAULT"
 bootstrap_vault_claude_md "$VAULT"
+install_symlinks
 
 exit 0

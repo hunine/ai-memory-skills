@@ -83,3 +83,45 @@ load 'test_helper'
   [ "$status" -eq 0 ]
   grep -q "Project" "$FIXTURE_VAULT/CLAUDE.md"
 }
+
+# ---------------------------------------------------------------------------
+# Symlink skill files tests (Task 12)
+# ---------------------------------------------------------------------------
+
+@test "install.sh symlinks SKILL.md into ~/.claude/skills/" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  [ "$status" -eq 0 ]
+  local link="$HOME/.claude/skills/agentic-second-brain/SKILL.md"
+  local target
+  target="$(cd "$REPO_ROOT" && pwd)/skills/agentic-second-brain/SKILL.md"
+  assert_symlink_to "$link" "$target"
+}
+
+@test "install.sh symlinks get-knowledge.md into ~/.claude/commands/" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  [ "$status" -eq 0 ]
+  local link="$HOME/.claude/commands/get-knowledge.md"
+  local target
+  target="$(cd "$REPO_ROOT" && pwd)/commands/get-knowledge.md"
+  assert_symlink_to "$link" "$target"
+}
+
+@test "install.sh symlinks save-memory.md into ~/.claude/commands/" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  [ "$status" -eq 0 ]
+  local link="$HOME/.claude/commands/save-memory.md"
+  local target
+  target="$(cd "$REPO_ROOT" && pwd)/commands/save-memory.md"
+  assert_symlink_to "$link" "$target"
+}
+
+@test "install.sh skips symlink when target source file does not exist" {
+  # Point REPO_ROOT at a temp dir with no skill files — install should still exit 0.
+  local empty_repo="$TEST_TMP/empty_repo"
+  mkdir -p "$empty_repo/skills/agentic-second-brain" "$empty_repo/commands" \
+            "$empty_repo/hooks" "$empty_repo/templates"
+  run env HOME="$HOME" XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
+    bash "$REPO_ROOT/install.sh" --vault "$FIXTURE_VAULT" --no-auto-session \
+    --target "$HOME/.claude"
+  [ "$status" -eq 0 ]
+}
