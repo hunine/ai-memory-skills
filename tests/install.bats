@@ -168,3 +168,42 @@ load 'test_helper'
     [ "$hook_count" -eq 0 ]
   fi
 }
+
+# ---------------------------------------------------------------------------
+# Uninstall path tests (Task 14)
+# ---------------------------------------------------------------------------
+
+@test "install.sh --uninstall removes skill symlink" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  run_install --vault "$FIXTURE_VAULT" --uninstall
+  [ "$status" -eq 0 ]
+  local link="$HOME/.claude/skills/agentic-second-brain/SKILL.md"
+  [ ! -L "$link" ]
+}
+
+@test "install.sh --uninstall removes command symlinks" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  run_install --vault "$FIXTURE_VAULT" --uninstall
+  [ "$status" -eq 0 ]
+  [ ! -L "$HOME/.claude/commands/get-knowledge.md" ]
+  [ ! -L "$HOME/.claude/commands/save-memory.md" ]
+}
+
+@test "install.sh --uninstall removes SessionEnd hook entry" {
+  run_install --vault "$FIXTURE_VAULT"
+  run_install --vault "$FIXTURE_VAULT" --uninstall
+  [ "$status" -eq 0 ]
+  local settings="$HOME/.claude/settings.json"
+  if [ -f "$settings" ]; then
+    local count
+    count="$(jq '[.hooks.SessionEnd // [] | .[].hooks // [] | .[].command] | map(select(contains("session-end-save"))) | length' "$settings")"
+    [ "$count" -eq 0 ]
+  fi
+}
+
+@test "install.sh --uninstall preserves config file" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  run_install --vault "$FIXTURE_VAULT" --uninstall
+  [ "$status" -eq 0 ]
+  assert_file_exists "$HOME/.claude/agentic-second-brain.json"
+}

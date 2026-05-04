@@ -70,6 +70,33 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 claude_root="${TARGET_DIR}"
 config_file="${claude_root}/agentic-second-brain.json"
+settings_file="${claude_root}/settings.json"
+hook_command_path="${SCRIPT_DIR}/hooks/session-end-save.md"
+
+# ---------------------------------------------------------------------------
+# Uninstall
+# ---------------------------------------------------------------------------
+if [[ "$UNINSTALL" == true ]]; then
+  # Remove skill symlink.
+  rm -f "${claude_root}/skills/agentic-second-brain/SKILL.md"
+
+  # Remove command symlinks.
+  for cmd_src in "${SCRIPT_DIR}/commands/"*.md; do
+    [[ -f "$cmd_src" ]] || continue
+    rm -f "${claude_root}/commands/$(basename "$cmd_src")"
+  done
+
+  # Remove SessionEnd hook entry from settings.json (preserve the file).
+  if [[ -f "$settings_file" ]]; then
+    _uninstall_tmp="$(mktemp)"
+    jq --arg cmd "$hook_command_path" \
+      '.hooks.SessionEnd = [.hooks.SessionEnd // [] | .[] | select(.hooks // [] | map(.command) | contains([$cmd]) | not)]' \
+      "$settings_file" > "$_uninstall_tmp" && mv "$_uninstall_tmp" "$settings_file"
+  fi
+
+  echo "agentic-second-brain uninstalled."
+  exit 0
+fi
 
 # ---------------------------------------------------------------------------
 # Vault resolution
