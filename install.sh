@@ -117,9 +117,29 @@ write_config() {
 }
 
 # ---------------------------------------------------------------------------
+# Bootstrap vault CLAUDE.md
+# ---------------------------------------------------------------------------
+bootstrap_vault_claude_md() {
+  local vault="$1"
+  local dest="${vault}/CLAUDE.md"
+  local template="${SCRIPT_DIR}/templates/vault-CLAUDE.md"
+
+  if [[ -f "$dest" ]]; then
+    return 0
+  fi
+
+  if [[ -f "$template" ]]; then
+    cp "$template" "$dest"
+  else
+    echo "Warning: template not found at $template — skipping CLAUDE.md bootstrap." >&2
+  fi
+}
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 VAULT="$(resolve_vault)"
 write_config "$VAULT"
+bootstrap_vault_claude_md "$VAULT"
 
 exit 0

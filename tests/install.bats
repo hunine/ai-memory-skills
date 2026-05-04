@@ -60,3 +60,26 @@ load 'test_helper'
     bash "$REPO_ROOT/install.sh" --no-auto-session < /dev/null
   [ "$status" -ne 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Vault CLAUDE.md bootstrap tests (Task 11)
+# ---------------------------------------------------------------------------
+
+@test "install.sh copies vault CLAUDE.md template when missing" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  [ "$status" -eq 0 ]
+  assert_file_exists "$FIXTURE_VAULT/CLAUDE.md"
+}
+
+@test "install.sh does not overwrite existing vault CLAUDE.md" {
+  echo "# My existing notes" > "$FIXTURE_VAULT/CLAUDE.md"
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  [ "$status" -eq 0 ]
+  grep -q "My existing notes" "$FIXTURE_VAULT/CLAUDE.md"
+}
+
+@test "install.sh bootstrapped CLAUDE.md contains expected sections" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  [ "$status" -eq 0 ]
+  grep -q "Project" "$FIXTURE_VAULT/CLAUDE.md"
+}
