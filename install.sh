@@ -64,4 +64,62 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "install.sh stub — not yet implemented"; exit 0
+# ---------------------------------------------------------------------------
+# Core paths
+# ---------------------------------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+claude_root="${TARGET_DIR}"
+config_file="${claude_root}/agentic-second-brain.json"
+
+# ---------------------------------------------------------------------------
+# Vault resolution
+# ---------------------------------------------------------------------------
+resolve_vault() {
+  # Priority: flag > env var > existing config > interactive prompt
+  local vault=""
+
+  if [[ -n "${VAULT_FLAG:-}" ]]; then
+    vault="$VAULT_FLAG"
+  elif [[ -n "${AGENTIC_SECOND_BRAIN_VAULT:-}" ]]; then
+    vault="$AGENTIC_SECOND_BRAIN_VAULT"
+  elif [[ -f "$config_file" ]]; then
+    vault="$(jq -r '.vault // empty' "$config_file" 2>/dev/null || true)"
+  fi
+
+  if [[ -z "$vault" ]]; then
+    # Interactive prompt — will EOF/fail in non-tty environments
+    if [[ -t 0 ]]; then
+      read -r -p "Enter path to your Obsidian vault: " vault
+    fi
+  fi
+
+  if [[ -z "$vault" ]]; then
+    echo "Error: vault path is required. Use --vault PATH or set AGENTIC_SECOND_BRAIN_VAULT." >&2
+    exit 1
+  fi
+
+  echo "$vault"
+}
+
+# ---------------------------------------------------------------------------
+# Write config
+# ---------------------------------------------------------------------------
+write_config() {
+  local vault="$1"
+
+  if [[ "$RESET_CONFIG" == true && -f "$config_file" ]]; then
+    rm -f "$config_file"
+  fi
+
+  mkdir -p "$claude_root"
+  printf '{\n  "vault": "%s"\n}\n' "$vault" > "$config_file"
+  chmod 600 "$config_file"
+}
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+VAULT="$(resolve_vault)"
+write_config "$VAULT"
+
+exit 0
