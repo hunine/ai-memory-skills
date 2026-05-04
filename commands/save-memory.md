@@ -1,6 +1,6 @@
 ---
 description: Write to Obsidian vault — inbox append, session log, or decision record
-argument-hint: <kind: inbox|session|decision> [args]
+argument-hint: "<kind: inbox|session|decision> [args]"
 ---
 
 Invoke the `agentic-second-brain` skill: `save-memory` with arguments "$ARGUMENTS".
