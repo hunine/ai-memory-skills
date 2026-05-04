@@ -24,8 +24,8 @@
 - `tests/test_helper.bash` — bats test helpers (temp HOME, fixture vault setup)
 - `tests/SMOKE.md` — manual smoke checklist for skill behavior
 - `tests/fixtures/vault/CLAUDE.md` — fixture vault config
-- `tests/fixtures/vault/Projects/praio/index.md` — fixture project with wiki-links
-- `tests/fixtures/vault/Projects/Praio-Mobile/index.md` — second project for case-insensitive match test
+- `tests/fixtures/vault/Projects/todo-app/index.md` — fixture project with wiki-links
+- `tests/fixtures/vault/Projects/Todo-App-Mobile/index.md` — second project for case-insensitive match test
 - `tests/fixtures/vault/Inbox/.gitkeep` — empty inbox dir
 - `tests/fixtures/vault/AI/session/.gitkeep` — empty session dir
 - `tests/fixtures/vault/Templates/.gitkeep` — empty templates dir
@@ -51,8 +51,8 @@ Each file has one responsibility:
 
 ```bash
 mkdir -p .claude-plugin skills/agentic-second-brain commands hooks templates \
-  tests/fixtures/vault/Projects/praio \
-  tests/fixtures/vault/Projects/Praio-Mobile \
+  tests/fixtures/vault/Projects/todo-app \
+  tests/fixtures/vault/Projects/Todo-App-Mobile \
   tests/fixtures/vault/Inbox \
   tests/fixtures/vault/AI/session \
   tests/fixtures/vault/Templates
@@ -1234,14 +1234,14 @@ git commit -m "test(install): cover jq-missing error path with loud message"
 
 **Files:**
 - Create: `tests/fixtures/vault/CLAUDE.md`
-- Create: `tests/fixtures/vault/Projects/praio/index.md`
-- Create: `tests/fixtures/vault/Projects/praio/decisions/auth-existing.md`
-- Create: `tests/fixtures/vault/Projects/praio/research/.gitkeep`
-- Create: `tests/fixtures/vault/Projects/Praio-Mobile/index.md`
+- Create: `tests/fixtures/vault/Projects/todo-app/index.md`
+- Create: `tests/fixtures/vault/Projects/todo-app/decisions/auth-existing.md`
+- Create: `tests/fixtures/vault/Projects/todo-app/research/.gitkeep`
+- Create: `tests/fixtures/vault/Projects/Todo-App-Mobile/index.md`
 - Create: `tests/fixtures/vault/Inbox/2026-05-04.md`
 - Create: `tests/fixtures/vault/AI/session/2026-05-03-15.md`
 - Create: `tests/fixtures/vault/Notes/Auth Strategy.md`
-- Create: `tests/fixtures/vault/Notes/needs-review-praio.md`
+- Create: `tests/fixtures/vault/Notes/needs-review-todo-app.md`
 
 Realistic fixture for Phase 1 / Phase 2 manual smoke test in `tests/SMOKE.md`.
 
@@ -1251,17 +1251,17 @@ Realistic fixture for Phase 1 / Phase 2 manual smoke test in `tests/SMOKE.md`.
 cp templates/vault-CLAUDE.md tests/fixtures/vault/CLAUDE.md
 ```
 
-- [ ] **Step 2: Write `tests/fixtures/vault/Projects/praio/index.md`**
+- [ ] **Step 2: Write `tests/fixtures/vault/Projects/todo-app/index.md`**
 
 ```markdown
 ---
-title: praio
+title: todo-app
 date: 2026-05-04
 tags: [project]
 status: active
 ---
 
-# praio
+# todo-app
 
 Research project on adaptive caching for distributed APIs.
 
@@ -1276,7 +1276,7 @@ Active. Auth path under review.
 - #action Confirm JWT vs session cookie with security review
 ```
 
-- [ ] **Step 3: Write `tests/fixtures/vault/Projects/praio/decisions/auth-existing.md`**
+- [ ] **Step 3: Write `tests/fixtures/vault/Projects/todo-app/decisions/auth-existing.md`**
 
 ```markdown
 ---
@@ -1284,7 +1284,7 @@ title: Use HTTP-only cookies for v0
 date: 2026-04-20
 tags: [decision]
 status: archived
-project: praio
+project: todo-app
 ---
 
 # Use HTTP-only cookies for v0
@@ -1294,19 +1294,19 @@ project: praio
 Earlier decision before JWT review opened. Kept for history.
 ```
 
-- [ ] **Step 4: Write `tests/fixtures/vault/Projects/Praio-Mobile/index.md`**
+- [ ] **Step 4: Write `tests/fixtures/vault/Projects/Todo-App-Mobile/index.md`**
 
 ```markdown
 ---
-title: Praio-Mobile
+title: Todo-App-Mobile
 date: 2026-04-15
 tags: [project]
 status: active
 ---
 
-# Praio-Mobile
+# Todo-App-Mobile
 
-Mobile companion to praio. Separate codebase, shared API.
+Mobile companion to todo-app. Separate codebase, shared API.
 ```
 
 - [ ] **Step 5: Write `tests/fixtures/vault/Inbox/2026-05-04.md`**
@@ -1323,7 +1323,7 @@ processed: false
 # 2026-05-04
 
 ## Captures
-- Need to revisit JWT vs cookies for praio.
+- Need to revisit JWT vs cookies for todo-app.
 ```
 
 - [ ] **Step 6: Write `tests/fixtures/vault/AI/session/2026-05-03-15.md`**
@@ -1336,17 +1336,17 @@ tags: [ai-session]
 ---
 
 ## Session Summary
-Reviewed praio caching layer. Discussed adaptive TTL.
+Reviewed todo-app caching layer. Discussed adaptive TTL.
 
 ## Actions Taken
-- Read Projects/praio/index.md
-- Skimmed praio/decisions/
+- Read Projects/todo-app/index.md
+- Skimmed todo-app/decisions/
 
 ## Notes Processed
 - (none)
 
 ## Open Items
-- Decide on auth strategy for praio.
+- Decide on auth strategy for todo-app.
 ```
 
 - [ ] **Step 7: Write `tests/fixtures/vault/Notes/Auth Strategy.md`**
@@ -1357,9 +1357,9 @@ title: Auth Strategy
 date: 2026-05-01
 tags: [research]
 status: active
-project: praio
+project: todo-app
 related:
-  - "[[praio/index]]"
+  - "[[todo-app/index]]"
 ---
 
 # Auth Strategy
@@ -1367,15 +1367,15 @@ related:
 Comparing JWT vs session cookies. Open question: rotation cadence.
 ```
 
-- [ ] **Step 8: Write `tests/fixtures/vault/Notes/needs-review-praio.md`**
+- [ ] **Step 8: Write `tests/fixtures/vault/Notes/needs-review-todo-app.md`**
 
 ```markdown
 ---
-title: needs-review-praio
+title: needs-review-todo-app
 date: 2026-05-02
 tags: [needs-review]
 status: draft
-project: praio
+project: todo-app
 ---
 
 # Pending Review
@@ -1420,13 +1420,13 @@ Expected: config written, vault CLAUDE.md untouched (fixture already has one), s
 
 ## 1. Phase 1 read — exact match
 
-Input: `/agentic-second-brain:get-knowledge praio`
+Input: `/agentic-second-brain:get-knowledge todo-app`
 
 Assertions:
-- Skill loads `Projects/praio/index.md`.
+- Skill loads `Projects/todo-app/index.md`.
 - Lists `[[Auth Strategy]]` and `[[Onboarding Flow]]` as known wiki-links.
 - Surfaces today's daily note (`Inbox/2026-05-04.md`) capture.
-- Surfaces `needs-review-praio` note.
+- Surfaces `needs-review-todo-app` note.
 - Surfaces last session summary (`2026-05-03-15.md`).
 - Lists `auth-existing.md` filename in `decisions/` but does NOT read its content.
 
@@ -1449,16 +1449,16 @@ Assertions:
 
 ## 4. save-memory decision (new slug)
 
-Input: `/agentic-second-brain:save-memory decision praio auth-jwt`
+Input: `/agentic-second-brain:save-memory decision todo-app auth-jwt`
 
 Assertions:
-- `Projects/praio/decisions/auth-jwt.md` created.
+- `Projects/todo-app/decisions/auth-jwt.md` created.
 - Frontmatter populated per vault CLAUDE.md schema (`title`, `date`, `tags`, `status`, `project`, `processed`, `related`).
 - Body contains `#decision` tag.
 
 ## 5. save-memory decision (collision)
 
-Input: `/agentic-second-brain:save-memory decision praio auth-jwt`
+Input: `/agentic-second-brain:save-memory decision todo-app auth-jwt`
 
 Assertions:
 - Skill refuses to overwrite.
@@ -1467,10 +1467,10 @@ Assertions:
 
 ## 6. Case-insensitive project match
 
-Input: `/agentic-second-brain:get-knowledge PRAIO`
+Input: `/agentic-second-brain:get-knowledge TODO-APP`
 
 Assertions:
-- Matches `praio` (case-folded).
+- Matches `todo-app` (case-folded).
 - Behaves identically to step 1.
 
 ## 7. Ambiguous prefix is not a match
@@ -1479,7 +1479,7 @@ Input: `/agentic-second-brain:get-knowledge pra`
 
 Assertions:
 - Skill returns "no project matches `pra`".
-- Lists available projects: `praio`, `Praio-Mobile`.
+- Lists available projects: `todo-app`, `Todo-App-Mobile`.
 - Does NOT load any project.
 
 ## 8. SessionEnd auto-save
@@ -1603,7 +1603,7 @@ Loads `<vault>/Projects/<project>/index.md` (case-insensitive match), today's da
 
 Writes to your vault per the schema in `<vault>/CLAUDE.md`. Append-only for daily notes and session logs. Refuses to overwrite an existing decision slug.
 
-The skill also auto-triggers when you say things like "load praio context" or "save this session" — no slash command required.
+The skill also auto-triggers when you say things like "load todo-app context" or "save this session" — no slash command required.
 
 ## Vault Layout Expected
 

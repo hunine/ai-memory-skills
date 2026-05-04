@@ -244,17 +244,17 @@ Assertions: config file written and chmod 600, symlinks exist and point at repo,
 
 ### 9.2 Skill behavior — manual smoke checklist (`tests/SMOKE.md`)
 
-Fixture vault under `tests/fixtures/vault/` with: `CLAUDE.md`, `Projects/praio/index.md` (with wiki-links to `[[Auth Strategy]]`, `[[Onboarding]]`), `Projects/Praio-Mobile/index.md`, `Inbox/<today>.md`, `AI/session/<recent>.md`, a `#needs-review` note linking `praio`.
+Fixture vault under `tests/fixtures/vault/` with: `CLAUDE.md`, `Projects/todo-app/index.md` (with wiki-links to `[[Auth Strategy]]`, `[[Onboarding]]`), `Projects/Todo-App-Mobile/index.md`, `Inbox/<today>.md`, `AI/session/<recent>.md`, a `#needs-review` note linking `todo-app`.
 
 Steps:
 
-1. `/agentic-second-brain:get-knowledge praio` → loads index, lists open actions, surfaces needs-review note, lists decisions/research filenames without content. Holds nav map in context.
+1. `/agentic-second-brain:get-knowledge todo-app` → loads index, lists open actions, surfaces needs-review note, lists decisions/research filenames without content. Holds nav map in context.
 2. Follow-up "what's the auth strategy" → agent navigates `[[Auth Strategy]]` from nav map, reads file, answers.
 3. `/agentic-second-brain:save-memory inbox "test capture"` → appends to today's daily note with timestamp.
-4. `/agentic-second-brain:save-memory decision praio auth-jwt` → writes `Projects/praio/decisions/auth-jwt.md` with `#decision` tag and frontmatter populated from vault CLAUDE.md schema.
+4. `/agentic-second-brain:save-memory decision todo-app auth-jwt` → writes `Projects/todo-app/decisions/auth-jwt.md` with `#decision` tag and frontmatter populated from vault CLAUDE.md schema.
 5. Re-run same decision slug → refuses, suggests `auth-jwt-2`.
-6. `/agentic-second-brain:get-knowledge PRAIO` → matches `praio` (case-insensitive).
-7. `/agentic-second-brain:get-knowledge pra` → no exact match. Lists `praio`, `Praio-Mobile`. No partial match.
+6. `/agentic-second-brain:get-knowledge TODO-APP` → matches `todo-app` (case-insensitive).
+7. `/agentic-second-brain:get-knowledge pra` → no exact match. Lists `todo-app`, `Todo-App-Mobile`. No partial match.
 8. `/exit` → SessionEnd hook fires → `AI/session/<today-hour>.md` written with full template structure.
 9. Run another short session same hour → `## Continued` block appended, original content preserved.
 

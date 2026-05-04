@@ -13,7 +13,7 @@ The vault itself (the "second brain") lives outside this repo. This repo only sh
 Every distribution target (Claude Code skill, Cursor rule, opencode/codex equivalent) must expose at least these two surfaces with consistent semantics:
 
 1. **get-knowledge** — Load project context from the vault on demand.
-   - Trigger: `<plugin>:get-knowledge <project-folder-name>` (e.g. `praio` → reads `/Projects/praio/`).
+   - Trigger: `<plugin>:get-knowledge <project-folder-name>` (e.g. `todo-app` → reads `/Projects/todo-app/`).
    - Resolution order: `index.md` first, then `decisions/`, then `research/`. Never deep-scan blindly.
    - Also surface: today's daily note (`/Inbox/YYYY-MM-DD.md`), any `#needs-review` notes for that project, latest `/AI/session/*` entries that link to the project.
 
