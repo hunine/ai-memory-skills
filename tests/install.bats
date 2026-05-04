@@ -125,3 +125,46 @@ load 'test_helper'
     --target "$HOME/.claude"
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# SessionEnd hook injection tests (Task 13)
+# ---------------------------------------------------------------------------
+
+@test "install.sh injects SessionEnd hook into Claude settings.json" {
+  run_install --vault "$FIXTURE_VAULT"
+  [ "$status" -eq 0 ]
+  local settings="$HOME/.claude/settings.json"
+  assert_file_exists "$settings"
+  assert_json_eq "$settings" '.hooks.SessionEnd | length > 0' "true"
+}
+
+@test "install.sh hook entry contains the session-end-save command path" {
+  run_install --vault "$FIXTURE_VAULT"
+  [ "$status" -eq 0 ]
+  local settings="$HOME/.claude/settings.json"
+  local hook_cmd
+  hook_cmd="$(jq -r '.hooks.SessionEnd[0].hooks[0].command' "$settings")"
+  [[ "$hook_cmd" == *"session-end-save"* ]]
+}
+
+@test "install.sh hook injection is idempotent" {
+  run_install --vault "$FIXTURE_VAULT"
+  run_install --vault "$FIXTURE_VAULT"
+  [ "$status" -eq 0 ]
+  local settings="$HOME/.claude/settings.json"
+  local count
+  count="$(jq '[.hooks.SessionEnd[].hooks[].command] | map(select(contains("session-end-save"))) | length' "$settings")"
+  [ "$count" -eq 1 ]
+}
+
+@test "install.sh --no-auto-session skips hook injection" {
+  run_install --vault "$FIXTURE_VAULT" --no-auto-session
+  [ "$status" -eq 0 ]
+  local settings="$HOME/.claude/settings.json"
+  # Either no settings file or no SessionEnd key.
+  if [ -f "$settings" ]; then
+    local hook_count
+    hook_count="$(jq '.hooks.SessionEnd // [] | length' "$settings")"
+    [ "$hook_count" -eq 0 ]
+  fi
+}

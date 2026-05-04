@@ -159,11 +159,47 @@ install_symlinks() {
 }
 
 # ---------------------------------------------------------------------------
+# SessionEnd hook injection
+# ---------------------------------------------------------------------------
+inject_session_end_hook() {
+  local settings_file="${claude_root}/settings.json"
+  local hook_command_path="${SCRIPT_DIR}/hooks/session-end-save.md"
+
+  # Ensure settings.json exists with at least an empty object.
+  if [[ ! -f "$settings_file" ]]; then
+    echo '{}' > "$settings_file"
+  fi
+
+  # Check for idempotency — skip if our hook command is already present.
+  local already
+  already="$(jq --arg cmd "$hook_command_path" \
+    '[.hooks.SessionEnd // [] | .[].hooks // [] | .[].command] | map(select(. == $cmd)) | length' \
+    "$settings_file")"
+  if [[ "$already" -gt 0 ]]; then
+    return 0
+  fi
+
+  # Merge the new hook entry into the existing settings.
+  local new_entry
+  new_entry="$(printf '{"matcher":"*","hooks":[{"type":"command","command":"%s"}]}' "$hook_command_path")"
+
+  local tmp
+  tmp="$(mktemp)"
+  jq --argjson entry "$new_entry" \
+    '.hooks.SessionEnd = ((.hooks.SessionEnd // []) + [$entry])' \
+    "$settings_file" > "$tmp" && mv "$tmp" "$settings_file"
+}
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 VAULT="$(resolve_vault)"
 write_config "$VAULT"
 bootstrap_vault_claude_md "$VAULT"
 install_symlinks
+
+if [[ "$NO_AUTO_SESSION" == false ]]; then
+  inject_session_end_hook
+fi
 
 exit 0
