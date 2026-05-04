@@ -65,6 +65,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 # ---------------------------------------------------------------------------
+# Dependency check
+# ---------------------------------------------------------------------------
+require_jq() {
+  if ! command -v jq &>/dev/null; then
+    echo "Error: jq is required but was not found on PATH." >&2
+    echo "Install jq (https://stedolan.github.io/jq/) and re-run." >&2
+    exit 1
+  fi
+}
+
+require_jq
+
+# ---------------------------------------------------------------------------
 # Core paths
 # ---------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

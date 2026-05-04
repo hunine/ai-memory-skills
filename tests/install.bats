@@ -207,3 +207,18 @@ load 'test_helper'
   [ "$status" -eq 0 ]
   assert_file_exists "$HOME/.claude/agentic-second-brain.json"
 }
+
+# ---------------------------------------------------------------------------
+# jq missing error path (Task 15)
+# ---------------------------------------------------------------------------
+
+@test "install.sh errors loud when jq is missing during hook injection" {
+  # Mask jq by placing a no-op shim dir first and passing PATH explicitly via env.
+  local jqshim="$TEST_TMP/nojq"
+  mkdir -p "$jqshim"
+  run env HOME="$HOME" XDG_CONFIG_HOME="$XDG_CONFIG_HOME" \
+    PATH="$jqshim:/usr/local/bin:/bin:/usr/bin/env" \
+    bash "$REPO_ROOT/install.sh" --vault "$FIXTURE_VAULT"
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"jq is required"* ]]
+}
