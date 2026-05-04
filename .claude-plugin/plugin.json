@@ -7,14 +7,6 @@
     "email": "hqhung201@gmail.com",
     "url": "https://github.com/hunine"
   },
-  "skills": ["skills/agentic-second-brain"],
-  "commands": [
-    "commands/get-knowledge.md",
-    "commands/save-memory.md"
-  ],
-  "hooks": {
-    "SessionEnd": [
-      { "matcher": "*", "command": "hooks/session-end-save.md" }
-    ]
-  }
+  "skills": "./skills/",
+  "commands": "./commands/"
 }
