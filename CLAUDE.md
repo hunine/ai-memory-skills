@@ -43,7 +43,8 @@ Same logical skill must ship in target-specific shapes:
 
 - **Claude Code** — `skills/<name>/SKILL.md` with frontmatter (`name`, `description`); installable via plugin or symlink into `~/.claude/skills/`.
 - **Cursor** — `.cursor/rules/*.mdc` rule files mapping to the same triggers.
-- **opencode / codex / others** — equivalent prompt or tool-definition format per their docs.
+- **Codex** — `codex/skills/<name>/SKILL.md` with Codex-facing wording plus optional `agents/openai.yaml`; plugin metadata lives in `.codex-plugin/plugin.json`.
+- **opencode / others** — equivalent prompt or tool-definition format per their docs.
 
 Keep the prose body of every variant generated from a single source-of-truth document so behavior stays identical across agents. Diverge only on the metadata header that each tool requires.
 
@@ -57,10 +58,19 @@ Skills must not hard-code the vault location. Read it from (in order):
 
 ## Repository State
 
-Repo is currently empty (no commits, no source files yet). When adding the first skill, scaffold:
+The repository now contains the first Claude Code and Codex distributions:
 
-- `skills/<name>/SKILL.md` for the Claude Code variant.
-- `install.sh` (or equivalent) that symlinks/copies the skill into the right per-agent global directory.
-- `README.md` describing supported agents and install steps.
+- `skills/agentic-second-brain/SKILL.md` — Claude Code skill body.
+- `codex/skills/agentic-second-brain/SKILL.md` — Codex skill body.
+- `commands/` — Claude Code slash commands.
+- `hooks/` — Claude Code SessionEnd hook prompt.
+- `.claude-plugin/` — Claude Code plugin metadata.
+- `.codex-plugin/plugin.json` — Codex plugin metadata.
+- `install.sh` — installs `claude-code`, `codex`, or `all` targets.
+- `README.md` — supported agents and install steps.
 
-Build, lint, and test commands will be added once a toolchain is chosen — do not invent commands until the scaffold lands.
+Current automated test command:
+
+```bash
+bats tests/install.bats
+```

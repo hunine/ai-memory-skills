@@ -1,0 +1,5 @@
+interface:
+  display_name: "Agentic Second Brain"
+  short_description: "Use an Obsidian vault as agent memory"
+  default_prompt: "Use $agentic-second-brain to load project context from my Obsidian vault."
+

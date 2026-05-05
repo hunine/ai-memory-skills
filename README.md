@@ -1,13 +1,13 @@
 # agentic-second-brain
 
-Bridge an AI coding agent (Claude Code) to your Obsidian vault. Read project context on demand. Write structured session logs, inbox notes, and decision records back to the vault — all per the schema your vault's own `CLAUDE.md` declares.
+Bridge an AI coding agent (Claude Code or Codex) to your Obsidian vault. Read project context on demand. Write structured session logs, inbox notes, and decision records back to the vault — all per the schema your vault's own `CLAUDE.md` declares.
 
 ## What This Is
 
 - Two operations: `get-knowledge <project>` and `save-memory <kind> [args]`.
-- Pure markdown skill — no runtime, no CLI binary. Uses Claude Code's built-in Read/Write/Glob/Grep.
+- Pure markdown skill — no runtime, no CLI binary. Agent-specific packages provide Claude Code and Codex variants.
 - Vault is the source of truth. Edit `<vault>/CLAUDE.md` to change conventions; the skill picks it up next call.
-- Auto session log via SessionEnd hook (opt-out at install time).
+- Auto session log via Claude Code SessionEnd hook (opt-out at install time). Codex currently uses explicit `save-memory session`.
 
 ## Install
 
@@ -22,9 +22,28 @@ Recommended for Claude Code users.
 
 This registers the skill, the slash commands, and the SessionEnd hook automatically. You will still need to point the plugin at your vault — see "Configure Vault Path" below.
 
-### Option B — `install.sh`
+### Option B — Codex skill
 
-For manual installs, dotfile setups, or future ports to other agents.
+Install the Codex variant into `~/.codex/skills`:
+
+```bash
+git clone <this-repo-url> ~/code/ai-memory-skills
+cd ~/code/ai-memory-skills
+./install.sh --target codex --vault /path/to/your/obsidian-vault
+```
+
+Then invoke it by asking Codex naturally, for example:
+
+```text
+Use $agentic-second-brain to load todo-app context.
+Use $agentic-second-brain to save this session.
+```
+
+The Codex plugin manifest lives at `.codex-plugin/plugin.json`, and the Codex skill body lives at `codex/skills/agentic-second-brain/SKILL.md`.
+
+### Option C — `install.sh`
+
+For manual installs, dotfile setups, or installing multiple supported agents.
 
 ```bash
 git clone <this-repo-url> ~/code/ai-memory-skills
@@ -34,18 +53,20 @@ cd ~/code/ai-memory-skills
 
 Flags:
 - `--vault <path>` — path to your Obsidian vault.
-- `--no-auto-session` — skip the SessionEnd hook.
-- `--target <agent>` — `claude-code` (default; others reserved).
+- `--no-auto-session` — skip the Claude Code SessionEnd hook.
+- `--target <agent>` — `claude-code` (default), `codex`, or `all`.
 - `--reset-config` — overwrite an existing config file.
-- `--uninstall` — remove symlinks and hook entry; preserves config and vault.
+- `--uninstall` — remove target symlinks and any Claude hook entry; preserves config and vault.
 - `--help` — show usage.
 
 The script:
 1. Resolves the vault path (`--vault` → `$AGENTIC_SECOND_BRAIN_VAULT` → prompt).
 2. Writes `~/.config/agentic-second-brain/config.json` with permissions 600.
 3. Offers to copy `templates/vault-CLAUDE.md` into your vault if it has no `CLAUDE.md` (never overwrites).
-4. Symlinks the skill body and slash commands into `~/.claude/`.
-5. Injects a SessionEnd hook into `~/.claude/settings.json` (skip with `--no-auto-session`).
+4. Symlinks the selected agent assets:
+   - Claude Code: skill body and slash commands into `~/.claude/`.
+   - Codex: Codex skill body into `~/.codex/skills/`.
+5. Injects a Claude Code SessionEnd hook into `~/.claude/settings.json` when installing Claude Code (skip with `--no-auto-session`).
 
 ## Configure Vault Path
 
@@ -74,6 +95,14 @@ Writes to your vault per the schema in `<vault>/CLAUDE.md`. Append-only for dail
 
 The skill also auto-triggers when you say things like "load todo-app context" or "save this session" — no slash command required.
 
+For Codex, prefer explicit skill invocation when you want reliable routing:
+
+```text
+Use $agentic-second-brain to load todo-app context.
+Use $agentic-second-brain to save this session.
+Use $agentic-second-brain to capture this decision.
+```
+
 ## Vault Layout Expected
 
 ```
@@ -92,7 +121,7 @@ The skill also auto-triggers when you say things like "load todo-app context" or
 ./install.sh --uninstall
 ```
 
-Or, if installed via the plugin route, `/plugin disable agentic-second-brain`.
+Use `--target codex --uninstall` for only the Codex symlink, or `--target all --uninstall` for both Claude Code and Codex symlinks. If installed via the Claude plugin route, `/plugin disable agentic-second-brain`.
 
 Vault contents and config file are preserved. Delete `~/.config/agentic-second-brain/config.json` manually if you want a fully clean slate.
 

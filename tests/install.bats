@@ -115,6 +115,33 @@ load 'test_helper'
     "$repo_abs/commands/save-memory.md"
 }
 
+@test "install.sh --target codex symlinks Codex skill into ~/.codex/skills" {
+  run_install --vault "$FIXTURE_VAULT" --target codex
+  [ "$status" -eq 0 ]
+  local link="$HOME/.codex/skills/agentic-second-brain"
+  local target
+  target="$(cd "$REPO_ROOT" && pwd)/codex/skills/agentic-second-brain"
+  assert_symlink_to "$link" "$target"
+}
+
+@test "install.sh --target codex does not install Claude slash commands" {
+  run_install --vault "$FIXTURE_VAULT" --target codex
+  [ "$status" -eq 0 ]
+  [ ! -e "$HOME/.claude/commands/agentic-second-brain" ]
+  [ ! -e "$HOME/.claude/skills/agentic-second-brain" ]
+}
+
+@test "install.sh --target all installs Claude and Codex skills" {
+  run_install --vault "$FIXTURE_VAULT" --target all --no-auto-session
+  [ "$status" -eq 0 ]
+  local repo_abs
+  repo_abs="$(cd "$REPO_ROOT" && pwd)"
+  assert_symlink_to "$HOME/.claude/skills/agentic-second-brain" \
+    "$repo_abs/skills/agentic-second-brain"
+  assert_symlink_to "$HOME/.codex/skills/agentic-second-brain" \
+    "$repo_abs/codex/skills/agentic-second-brain"
+}
+
 @test "install.sh re-running is idempotent for symlinks" {
   run_install --vault "$FIXTURE_VAULT" --no-auto-session
   [ "$status" -eq 0 ]
@@ -189,6 +216,16 @@ EOF
   [ "$status" -eq 0 ]
   [ ! -e "$HOME/.claude/skills/agentic-second-brain" ]
   [ ! -e "$HOME/.claude/commands/agentic-second-brain" ]
+  assert_file_exists "$XDG_CONFIG_HOME/agentic-second-brain/config.json"
+}
+
+@test "install.sh --target codex --uninstall removes Codex skill only" {
+  run_install --vault "$FIXTURE_VAULT" --target all --no-auto-session
+  [ "$status" -eq 0 ]
+  run_install --target codex --uninstall
+  [ "$status" -eq 0 ]
+  [ ! -e "$HOME/.codex/skills/agentic-second-brain" ]
+  [ -e "$HOME/.claude/skills/agentic-second-brain" ]
   assert_file_exists "$XDG_CONFIG_HOME/agentic-second-brain/config.json"
 }
 

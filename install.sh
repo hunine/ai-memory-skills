@@ -12,7 +12,7 @@ Usage: install.sh [options]
 Options:
   --vault <path>          Path to your Obsidian vault (overrides env / config)
   --no-auto-session       Skip SessionEnd hook injection
-  --target <agent>        Agent target: claude-code (default). cursor / opencode / codex / all are reserved.
+  --target <agent>        Agent target: claude-code (default), codex, or all. cursor / opencode are reserved.
   --uninstall             Remove symlinks and hook entry; preserve config + vault
   --reset-config          Overwrite existing config.json
   --help                  Show this help and exit
@@ -51,14 +51,37 @@ skills_dir="$claude_root/skills"
 commands_dir="$claude_root/commands/agentic-second-brain"
 settings_file="$claude_root/settings.json"
 hook_command_path="$SCRIPT_DIR/hooks/session-end-save.md"
+codex_root="${CODEX_HOME:-$HOME/.codex}"
+codex_skills_dir="$codex_root/skills"
+codex_skill_source="$SCRIPT_DIR/codex/skills/agentic-second-brain"
+
+# ---------------------------------------------------------------------------
+# Target gate
+# ---------------------------------------------------------------------------
+case "$TARGET" in
+  claude-code|codex|all) ;;
+  cursor|opencode)
+    echo "error: target \"$TARGET\" not yet supported in v1" >&2
+    exit 3
+    ;;
+  *)
+    echo "error: unknown target \"$TARGET\"" >&2
+    exit 3
+    ;;
+esac
 
 # ---------------------------------------------------------------------------
 # Uninstall — short-circuit before anything else
 # ---------------------------------------------------------------------------
 if [ "$UNINSTALL" -eq 1 ]; then
-  rm -f "$skills_dir/agentic-second-brain"
-  rm -rf "$commands_dir"
-  if [ -f "$settings_file" ] && command -v jq >/dev/null 2>&1; then
+  if [ "$TARGET" = "claude-code" ] || [ "$TARGET" = "all" ]; then
+    rm -f "$skills_dir/agentic-second-brain"
+    rm -rf "$commands_dir"
+  fi
+  if [ "$TARGET" = "codex" ] || [ "$TARGET" = "all" ]; then
+    rm -f "$codex_skills_dir/agentic-second-brain"
+  fi
+  if { [ "$TARGET" = "claude-code" ] || [ "$TARGET" = "all" ]; } && [ -f "$settings_file" ] && command -v jq >/dev/null 2>&1; then
     _uninstall_tmp="$(mktemp)"
     jq --arg cmd "$hook_command_path" '
       if .hooks.SessionEnd then
@@ -69,21 +92,6 @@ if [ "$UNINSTALL" -eq 1 ]; then
   echo "uninstalled. config preserved at $config_file" >&2
   exit 0
 fi
-
-# ---------------------------------------------------------------------------
-# Target gate
-# ---------------------------------------------------------------------------
-case "$TARGET" in
-  claude-code) ;;
-  cursor|opencode|codex|all)
-    echo "error: target \"$TARGET\" not yet supported in v1" >&2
-    exit 3
-    ;;
-  *)
-    echo "error: unknown target \"$TARGET\"" >&2
-    exit 3
-    ;;
-esac
 
 # ---------------------------------------------------------------------------
 # Dependency check
@@ -175,21 +183,40 @@ bootstrap_vault_claude_md() {
 bootstrap_vault_claude_md
 
 # ---------------------------------------------------------------------------
-# Symlink skill and command files into ~/.claude
+# Symlink skill and command files into agent directories
 # ---------------------------------------------------------------------------
-install_symlinks() {
+install_claude_symlinks() {
   mkdir -p "$skills_dir" "$commands_dir"
   ln -sfn "$SCRIPT_DIR/skills/agentic-second-brain" "$skills_dir/agentic-second-brain"
   ln -sfn "$SCRIPT_DIR/commands/get-knowledge.md" "$commands_dir/get-knowledge.md"
   ln -sfn "$SCRIPT_DIR/commands/save-memory.md"   "$commands_dir/save-memory.md"
 }
 
-install_symlinks
+install_codex_symlink() {
+  mkdir -p "$codex_skills_dir"
+  ln -sfn "$codex_skill_source" "$codex_skills_dir/agentic-second-brain"
+}
+
+case "$TARGET" in
+  claude-code)
+    install_claude_symlinks
+    ;;
+  codex)
+    install_codex_symlink
+    ;;
+  all)
+    install_claude_symlinks
+    install_codex_symlink
+    ;;
+esac
 
 # ---------------------------------------------------------------------------
 # SessionEnd hook injection (uses Claude Code's nested hook schema)
 # ---------------------------------------------------------------------------
 inject_session_end_hook() {
+  if [ "$TARGET" = "codex" ]; then
+    return
+  fi
   if [ "$NO_AUTO_SESSION" -eq 1 ]; then
     return
   fi

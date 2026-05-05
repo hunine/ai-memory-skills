@@ -1,0 +1,26 @@
+{
+  "name": "agentic-second-brain",
+  "version": "0.1.0",
+  "description": "Obsidian vault as project-aware memory for Codex — read project context and write structured session, decision, and inbox notes back to your vault.",
+  "author": {
+    "name": "hunine",
+    "email": "hqhung201@gmail.com",
+    "url": "https://github.com/hunine"
+  },
+  "license": "TBD",
+  "keywords": ["codex", "obsidian", "memory", "skills", "second-brain"],
+  "skills": "./codex/skills/",
+  "interface": {
+    "displayName": "Agentic Second Brain",
+    "shortDescription": "Use an Obsidian vault as project-aware memory.",
+    "longDescription": "Load project knowledge from an Obsidian vault and save inbox captures, session logs, and decision records using the vault's own CLAUDE.md conventions.",
+    "developerName": "hunine",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "Use $agentic-second-brain to load todo-app context.",
+      "Use $agentic-second-brain to save this session.",
+      "Use $agentic-second-brain to capture this decision."
+    ]
+  }
+}
