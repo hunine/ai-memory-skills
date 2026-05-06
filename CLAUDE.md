@@ -13,14 +13,15 @@ The vault itself (the "second brain") lives outside this repo. This repo only sh
 Every distribution target (Claude Code skill, Cursor rule, opencode/codex equivalent) must expose at least these two surfaces with consistent semantics:
 
 1. **get-knowledge** — Load project context from the vault on demand.
-   - Trigger: `<plugin>:get-knowledge <project-folder-name>` (e.g. `todo-app` → reads `/Projects/todo-app/`).
-   - Resolution order: `index.md` first, then `decisions/`, then `research/`. Never deep-scan blindly.
+   - Trigger: `<plugin>:get-knowledge <project-folder-name-or-alias>` (e.g. `todo-app` or an alias declared in `index.md` frontmatter → reads `/Projects/todo-app/`).
+   - Resolution order: exact case-insensitive directory match first, then exact case-insensitive `alias`/`aliases` frontmatter match. Read `index.md` first, then list `decisions/` and `research/`. Never deep-scan blindly.
    - Also surface: today's daily note (`/Inbox/YYYY-MM-DD.md`), any `#needs-review` notes for that project, latest `/AI/session/*` entries that link to the project.
 
-2. **save-memory** — Write back to the vault using the conventions defined in the vault's own `CLAUDE.md` (the "vault CLAUDE.md"). Targets:
+2. **save-memory** — Write back to the vault using the conventions defined in the vault's own `CLAUDE.md` (the "vault CLAUDE.md"). Bare `save-memory` performs a smart save: always write a session log, then also write inbox, decision, or research notes when the chat context clearly calls for them. If knowledge is unclear, conflicting, or underspecified, ask the user to clarify before saving it as durable inbox, decision, or research memory. Targets:
    - `/Inbox/YYYY-MM-DD.md` for daily captures (append, don't overwrite).
    - `/AI/session/YYYY-MM-DD-HH.md` for session logs (24-hour `HH`, one file per session).
    - `/Projects/<name>/decisions/<slug>.md` for `#decision` notes.
+   - `/Projects/<name>/research/<slug>.md` for `#research` notes.
    - All new files must include the YAML frontmatter block specified in the vault CLAUDE.md (`title`, `date`, `tags`, `status`, `project`, `processed`, `related`).
 
 The vault's `CLAUDE.md` is the source of truth for note format, tag vocabulary (`#needs-review`, `#decision`, `#action`), commit message format (`memo(<scope>): ...`), and session protocol. Skills must read it at runtime rather than hard-coding the schema — the user can evolve their vault conventions without re-releasing skills.
@@ -74,3 +75,19 @@ Current automated test command:
 ```bash
 bats tests/install.bats
 ```
+
+## Commit Message Style
+
+Use Conventional Commit messages:
+
+```text
+<type>(<scope>): <imperative summary>
+```
+
+Examples:
+
+- `feat(skill): add smart save routing`
+- `fix(plugin): align manifest fields`
+- `test(smoke): add alias resolution coverage`
+
+For non-trivial changes, add a short body explaining what changed and finish with validation when relevant, for example `Validated with: bats tests/install.bats`.

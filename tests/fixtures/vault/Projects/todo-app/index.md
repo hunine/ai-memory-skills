@@ -3,6 +3,7 @@ title: todo-app
 date: 2026-05-04
 tags: [project]
 status: active
+aliases: [todo, task app]
 ---
 
 # todo-app

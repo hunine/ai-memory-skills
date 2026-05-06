@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ai-memory-skills",
-  "description": "Obsidian vault as project-aware memory for AI agents — read project context and write structured session/decision/inbox notes back to your vault.",
+  "description": "Obsidian vault as project-aware memory for AI agents — read project context and write smart session/decision/research/inbox notes back to your vault.",
   "owner": {
     "name": "hunine",
     "url": "https://github.com/hunine"

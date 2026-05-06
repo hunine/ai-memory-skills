@@ -4,7 +4,7 @@ Bridge an AI coding agent (Claude Code or Codex) to your Obsidian vault. Read pr
 
 ## What This Is
 
-- Two operations: `get-knowledge <project>` and `save-memory <kind> [args]`.
+- Two operations: `get-knowledge <project-or-alias>` and `save-memory [kind] [args]`.
 - Pure markdown skill — no runtime, no CLI binary. Agent-specific packages provide Claude Code and Codex variants.
 - Vault is the source of truth. Edit `<vault>/CLAUDE.md` to change conventions; the skill picks it up next call.
 - Auto session log via Claude Code SessionEnd hook (opt-out at install time). Codex currently uses explicit `save-memory session`.
@@ -37,6 +37,7 @@ Then invoke it by asking Codex naturally, for example:
 ```text
 Use $agentic-second-brain to load todo-app context.
 Use $agentic-second-brain to save this session.
+Use $agentic-second-brain to save memory for todo.
 ```
 
 The Codex plugin manifest lives at `.codex-plugin/plugin.json`, and the Codex skill body lives at `codex/skills/agentic-second-brain/SKILL.md`.
@@ -80,18 +81,21 @@ The skill resolves the vault path in this order:
 ## Usage
 
 ```
-/agentic-second-brain:get-knowledge <project>
+/agentic-second-brain:get-knowledge <project-or-alias>
 ```
 
-Loads `<vault>/Projects/<project>/index.md` (case-insensitive match), today's daily note, `#needs-review` notes, recent session logs, and lists decision and research filenames. Holds the index's wiki-links as a navigation map for follow-up questions.
+Loads `<vault>/Projects/<project>/index.md`, today's daily note, `#needs-review` notes, recent session logs, and lists decision and research filenames. Project resolution first checks exact case-insensitive folder names, then exact case-insensitive aliases declared in project `index.md` frontmatter as `aliases` or `alias`. Holds the index's wiki-links as a navigation map for follow-up questions.
 
 ```
+/agentic-second-brain:save-memory
+/agentic-second-brain:save-memory <project-or-alias>
 /agentic-second-brain:save-memory inbox "<text>"
 /agentic-second-brain:save-memory session
 /agentic-second-brain:save-memory decision <project> <slug>
+/agentic-second-brain:save-memory research <project> <slug>
 ```
 
-Writes to your vault per the schema in `<vault>/CLAUDE.md`. Append-only for daily notes and session logs. Refuses to overwrite an existing decision slug.
+Writes to your vault per the schema in `<vault>/CLAUDE.md`. Bare `save-memory` performs a smart save: it always writes a session log, then also writes inbox, decision, or research notes when the current chat context clearly calls for them. If knowledge is unclear or conflicting, the agent asks for clarification before saving it as durable memory. Append-only for daily notes, session logs, and existing research notes. Refuses to overwrite an existing decision slug.
 
 The skill also auto-triggers when you say things like "load todo-app context" or "save this session" — no slash command required.
 
@@ -100,6 +104,7 @@ For Codex, prefer explicit skill invocation when you want reliable routing:
 ```text
 Use $agentic-second-brain to load todo-app context.
 Use $agentic-second-brain to save this session.
+Use $agentic-second-brain to save memory for todo.
 Use $agentic-second-brain to capture this decision.
 ```
 

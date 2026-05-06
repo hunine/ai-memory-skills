@@ -1,7 +1,7 @@
 {
   "name": "agentic-second-brain",
   "version": "0.1.0",
-  "description": "Obsidian vault as project-aware memory for AI agents — read project context and write structured session/decision/inbox notes back to your vault.",
+  "description": "Obsidian vault as project-aware memory for AI agents — read project context and write smart session/decision/research/inbox notes back to your vault.",
   "author": {
     "name": "hunine",
     "email": "hqhung201@gmail.com",

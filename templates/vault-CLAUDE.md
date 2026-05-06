@@ -51,6 +51,7 @@ related:
 **Tags with special meaning:**
 - `#needs-review` — flags a note for human review
 - `#decision` — records a project decision (context, options, outcome)
+- `#research` — synthesized project knowledge or investigation results
 - `#action` — a task or follow-up
 
 **Linking:** use `[[Note Title]]` wiki-links. Prefer linking to project index notes (`/Projects/<name>/index.md`) rather than deeply nested files.
@@ -62,6 +63,14 @@ Each active project lives under `/Projects/<project-name>/`:
 - `index.md` — overview, status, links to key decisions and resources
 - `decisions/` — one file per major decision, tagged `#decision`
 - `research/` — synthesized notes (raw captures go to `/Inbox` first)
+
+Project `index.md` files may declare aliases in frontmatter so agents can resolve short names case-insensitively:
+
+```yaml
+aliases:
+  - short-name
+  - team shorthand
+```
 
 ## Commit Message Format
 

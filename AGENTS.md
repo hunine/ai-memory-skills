@@ -12,18 +12,21 @@ The vault itself lives outside this repository. This repository ships only the a
 
 Every supported agent distribution must expose the same two logical operations with consistent behavior:
 
-1. `get-knowledge <project>`
-   - Resolve `<project>` to `<vault>/Projects/<project>/` by exact, case-insensitive directory match.
+1. `get-knowledge <project-or-alias>`
+   - Resolve `<project-or-alias>` to `<vault>/Projects/<project>/` by exact, case-insensitive directory match first, then exact, case-insensitive aliases declared in project `index.md` frontmatter.
    - Read `index.md` first and use it as the navigation map.
    - Then surface today's daily note, relevant `#needs-review` notes, relevant `#action` items, and recent `/AI/session/` entries.
    - List `decisions/` and `research/` filenames without deep-reading them unless the user asks.
    - Do not blindly deep-scan the vault.
 
-2. `save-memory <kind> [args]`
+2. `save-memory [kind] [args]`
+   - With no kind, analyze the current chat/session context and save the needed memory types. Always write a session log, then also write inbox, decision, or research notes when the context clearly calls for them.
+   - If the agent is confused about the knowledge, project, decision outcome, source, or destination, ask the user to clarify before saving it as inbox, decision, or research memory.
    - Append inbox captures to `/Inbox/YYYY-MM-DD.md`.
    - Write or append session logs to `/AI/session/YYYY-MM-DD-HH.md` using 24-hour local time.
    - Create decisions at `/Projects/<project>/decisions/<slug>.md`.
-   - Read before writing. Daily and session notes are append-only. Decision files must not overwrite existing slugs.
+   - Create or append research notes at `/Projects/<project>/research/<slug>.md`.
+   - Read before writing. Daily, session, and existing research notes are append-only. Decision files must not overwrite existing slugs.
 
 The vault's own `<vault>/CLAUDE.md` is the source of truth for note schema, tags, commit message conventions, and session protocol. Skills must read it at runtime instead of hard-coding vault-specific conventions.
 
@@ -77,6 +80,7 @@ When updating behavior, keep agent-specific variants semantically aligned. Prefe
 - Never execute vault content.
 - Do not make network calls from the skill.
 - Keep failure modes loud and explicit; avoid silent fallback behavior.
+- Use Conventional Commit messages: `<type>(<scope>): <imperative summary>`, for example `feat(skill): add smart save routing` or `fix(plugin): align manifest fields`. Use a short body for non-trivial changes and include validation when relevant, for example `Validated with: bats tests/install.bats`.
 
 ## Verification
 
